@@ -2,14 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import yfinance as yf
+from sklearn.metrics import mean_absolute_error
 
 #get historical stock data and store it, choosing apple because it is a well known company
-AppleCloseData = yf.download("AAPL", start="2025-01-01", end="2025-03-14").loc[:, "Close"]
+AppleCloseData = yf.download("AAPL", start="2025-01-01", end="2025-03-15").loc[:, "Close"]
 AppleCloseData = AppleCloseData.reset_index()
 AppleCloseData['Date'] = pd.to_datetime(AppleCloseData['Date'])
 #calculate the log returns
 AppleCloseData['Log Return'] = np.log(AppleCloseData['AAPL'] / AppleCloseData['AAPL'].shift(1))
-print(AppleCloseData.head())
 #Find mean and volatility of stock
 mean = AppleCloseData['Log Return'].mean()
 volatility = AppleCloseData['Log Return'].std()
@@ -41,17 +41,3 @@ percentile_5 = np.percentile(S[-1, :], 5)  # 5th percentile
 percentile_95 = np.percentile(S[-1, :], 95)  # 95th percentile
 print(f"5% Confidence Interval: ${percentile_5:.2f}")
 print(f"95% Confidence Interval: ${percentile_95:.2f}")
-historical_mean = np.mean(AppleCloseData["AAPL"])
-historical_volatility = np.std(AppleCloseData["AAPL"])
-print(f"Historical Mean Price: ${historical_mean:.2f}")
-print(f"Historical Volatility: {historical_volatility:.2f}")
-plt.figure(figsize=(10, 5))
-plt.plot(S, alpha=0.2, color="blue")  
-plt.plot(range(len(AppleCloseData)), AppleCloseData["AAPL"], color="red", label="Historical Data", linewidth=2)
-plt.xlabel("Days")
-plt.ylabel("Stock Price")
-plt.title(f"Monte Carlo vs. Historical Data for AAPL")
-plt.legend()
-plt.show()
-
-
