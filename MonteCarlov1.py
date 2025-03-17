@@ -17,12 +17,13 @@ volatility = AppleCloseData['Log Return'].std()
 S_0 = AppleCloseData['AAPL'].iloc[-1]  # Current stock price
 print(S_0)  # Outputs an array, so use close_price[0] if needed
 T=252 #number of future days to simulate
-N=10 #number of steps per day
+N=1 #number of steps per day (really focused on close prices so, 1 step per day)
 M=1000 #number of simulations
 dt=1/N #time step
 Wt = np.random.standard_normal((T, M))  # Matrix of random numbers
 S = np.zeros((T, M)) #initialize matrix of stock prices
 S[0] = S_0 # Set initial stock price
+print(S[0])
 for t in range(1, T):
     S[t] = S[t-1] * np.exp((mean - 0.5 * volatility**2) * dt + volatility * np.sqrt(dt) * Wt[t])
 
