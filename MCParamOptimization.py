@@ -6,6 +6,7 @@ import pandas as pd
 import yfinance as yf
 from sklearn.metrics import mean_absolute_error
 from datetime import timedelta
+import time
 
 
 #variables to change
@@ -48,7 +49,7 @@ for t in range(1, T):
 predicted_prices = np.mean(S_results, axis=1)
 mae = mean_absolute_error(actual_prices, predicted_prices)
 #print(f"Mean Absolute Error (MAE) for results period: ${mae:.2f}")
-
+"""
 #plot the results
 import matplotlib.pyplot as plt
 plt.figure(figsize=(10, 5))
@@ -61,12 +62,12 @@ plt.show()
 #now we have to actually optimize the parameters
 #we aren't just looking for the lowest MAE, but also computational efficiency and time efficiency
 #we will be optimizing M and historical_data_length against these three metrics
-M_values = M_values = np.linspace(100, 5000, num=100, dtype=int) 
-historical_lengths = np.linspace(25, 1000, num=500, dtype=int) # Different historical data windows
+M_values = M_values = np.linspace(100, 50000, num=500, dtype=int) 
+historical_lengths = np.linspace(25, 1000, num=100, dtype=int) # Different historical data windows
 mae_results_M = []
 mae_results_H = []
 
-"""for M in M_values:
+for M in M_values:
     S_results = np.zeros((T, M))
     S_results[0] = S_0  # Initialize starting price
 
@@ -81,7 +82,7 @@ mae_results_H = []
     min_length = min(len(actual_prices), len(predicted_prices))
     mae = mean_absolute_error(actual_prices[:min_length], predicted_prices[:min_length])
 
-    mae_results_M.append(mae)  # Store MAE for this M"""
+    mae_results_M.append(mae)  # Store MAE for this M
 
 for historical_length in historical_lengths:
     #fix start date
@@ -111,7 +112,7 @@ for historical_length in historical_lengths:
     min_length = min(len(actual_prices), len(predicted_prices))
     mae = mean_absolute_error(actual_prices[:min_length], predicted_prices[:min_length])
 
-    mae_results_H.append(mae)  # Store MAE for this historical length
+    mae_results_H.append(mae)  # Store MAE for this historical length"""
 
 """# Plot MAE vs M
 plt.figure(figsize=(8, 5))
@@ -122,11 +123,76 @@ plt.title("MAE vs Number of Simulations")
 plt.grid(True)
 plt.show()"""
 
-# Plot MAE vs Historical Data Length
+"""# Plot MAE vs Historical Data Length
 plt.figure(figsize=(8, 5))
 plt.plot(historical_lengths, mae_results_H, marker='o', linestyle='-', color='r')
 plt.xlabel("Historical Data Length (Days)")
 plt.ylabel("Mean Absolute Error (MAE)")
 plt.title("MAE vs Historical Data Length")
+plt.grid(True)
+plt.show()"""
+
+num_trials = 200  # Number of runs for averaging
+
+# Define ranges for M and H
+M_values = np.linspace(100, 5000, num=20, dtype=int)  # Number of simulations
+H_values = np.linspace(100, 10000, num=50, dtype=int)  # Historical data length
+
+time_results_M = []
+time_results_H = []
+
+# Function to process historical stock data
+def historical_data_processing(H):
+    historical_start_date = historical_end_date - pd.Timedelta(days=int(H))
+    df = yf.download(stock, start=historical_start_date, end=historical_end_date, progress=False)
+    df['Log Return'] = np.log(df['Close'] / df['Close'].shift(1))
+    return df['Log Return'].mean(), df['Log Return'].std(), df['Close'].iloc[-1]
+
+"""# Function to perform Monte Carlo simulation
+def monte_carlo_simulation(M, mean, volatility, S_0):
+    dt = 1
+    S = np.zeros((T, M))
+    S[0] = S_0  # Set initial stock price
+    Wt = np.random.standard_normal((T, M))  # Brownian motion component
+
+    for t in range(1, T):
+        S[t] = S[t-1] * np.exp((mean - 0.5 * volatility**2) * dt + volatility * np.sqrt(dt) * Wt[t])
+    return S
+"""
+# Function to get average execution time over multiple runs
+def average_execution_time(func, *args):
+    times = []
+    for _ in range(num_trials):
+        start_time = time.time()
+        func(*args)  # Run function with arguments
+        times.append(time.time() - start_time)
+    return np.mean(times)
+
+"""# Benchmarking execution time vs M
+for M in M_values:
+    mean, volatility, S_0 = historical_data_processing(500)  # Fixed historical window for M test
+    avg_time = average_execution_time(monte_carlo_simulation, M, mean, volatility, S_0)
+    time_results_M.append(avg_time)"""
+
+# Benchmarking execution time vs H
+for H in H_values:
+    avg_time = average_execution_time(historical_data_processing, H)
+    time_results_H.append(avg_time)
+
+"""# Plot execution time vs M
+plt.figure(figsize=(8, 5))
+plt.plot(M_values, time_results_M, marker='o', linestyle='-', color='b')
+plt.xlabel("Number of Simulations (M)")
+plt.ylabel("Average Computation Time (s)")
+plt.title("Computation Time vs Number of Simulations (M)")
+plt.grid(True)
+plt.show()"""
+
+# Plot execution time vs H
+plt.figure(figsize=(8, 5))
+plt.plot(H_values, time_results_H, marker='o', linestyle='-', color='r')
+plt.xlabel("Historical Data Length (H)")
+plt.ylabel("Average Computation Time (s)")
+plt.title("Computation Time vs Historical Data Length (H)")
 plt.grid(True)
 plt.show()
