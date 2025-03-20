@@ -5,17 +5,16 @@ import yfinance as yf
 from sklearn.metrics import mean_absolute_error
 
 #get historical stock data and store it, choosing apple because it is a well known company
-AppleCloseData = yf.download("AAPL", start="2025-01-01", end="2025-03-15").loc[:, "Close"]
-AppleCloseData = AppleCloseData.reset_index()
-AppleCloseData['Date'] = pd.to_datetime(AppleCloseData['Date'])
+StockCloseData = yf.download("AAPL", start="2025-01-01", end="2025-03-15").loc[:, "Close"]
+StockCloseData = StockCloseData.reset_index()
+StockCloseData['Date'] = pd.to_datetime(StockCloseData['Date'])
 #calculate the log returns
-AppleCloseData['Log Return'] = np.log(AppleCloseData['AAPL'] / AppleCloseData['AAPL'].shift(1))
-#Find mean and volatility of stock
-mean = AppleCloseData['Log Return'].mean()
-volatility = AppleCloseData['Log Return'].std()
+StockCloseData['Log Return'] = np.log(StockCloseData['AAPL'] / StockCloseData['AAPL'].shift(1))
+mean = StockCloseData['Log Return'].mean()
+volatility = StockCloseData['Log Return'].std()
 #actually simulate stock price with monte carlo simulation
-S_0 = AppleCloseData['AAPL'].iloc[-1]  # Current stock price
-print(S_0)  # Outputs an array, so use close_price[0] if needed
+S_0 = StockCloseData['AAPL'].iloc[-1]  #current stock price
+print(S_0) 
 T=252 #number of future days to simulate
 N=1 #number of steps per day (really focused on close prices so, 1 step per day)
 M=1000 #number of simulations
