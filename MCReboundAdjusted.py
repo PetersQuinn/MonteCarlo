@@ -50,21 +50,24 @@ data['VIX_Change'] = data['VIX'].pct_change() * 100
 # Interaction Terms
 data['VIX_FedRate_Interaction'] = data['VIX'] * data['FedRate']
 # Lag Features (Capturing Delayed Effects)
-data['GDP_Lag_1'] = data['GDP'].shift(1)
-data['CPI_Lag_1'] = data['CPI'].shift(1)
+# Adjusting Lags to Match Reporting Frequency
+data['GDP_Lag_1Q'] = data['GDP'].shift(90)      # Lagging GDP by 1 Quarter (90 days)
+data['CPI_Lag_1M'] = data['CPI'].shift(30)      # Lagging CPI by 1 Month (30 days)
+data['FedRate_Lag_1M'] = data['FedRate'].shift(30)  # Lagging Federal Funds Rate by 1 Month (30 days)
+data['Unemployment_Lag_1M'] = data['Unemployment'].shift(30)  # Lagging Unemployment Rate by 1 Month (30 days)
+
 # Drop rows with NaN values introduced by feature engineering
 data.dropna(inplace=True)
 # Normalization & Scaling
 features_to_normalize = ['GDP', 'FedRate', 'CPI', 'Unemployment', 'VIX', 
                          'VIX_Rolling_30', 'CPI_Rolling_90', 
                          'GDP_Change', 'CPI_Change', 'VIX_Change', 
-                         'VIX_FedRate_Interaction', 'GDP_Lag_1', 'CPI_Lag_1']
+                         'VIX_FedRate_Interaction', 'GDP_Lag_1Q', 'CPI_Lag_1M',
+                         'FedRate_Lag_1M', 'Unemployment_Lag_1M']
 
 scaler = StandardScaler()
 data[features_to_normalize] = scaler.fit_transform(data[features_to_normalize])
-
 # Save your dataset with features
 data.to_csv('economic_indicators_with_features.csv')
-
 # Check the data structure
 print(data.head())
