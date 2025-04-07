@@ -105,3 +105,33 @@ print(cpi_data.tail())
 print("\nUnemployment Rate Data")
 print(unemployment_data.head())
 print(unemployment_data.tail())
+
+# Checking the last available date for each dataset
+print(f"AAPL Data Ends On: {stock_data.index[-1]}")
+print(f"VIX Data Ends On: {vix_data.index[-1]}")
+print(f"GDP Data Ends On: {gdp_data.index[-1]}")
+print(f"Fed Rate Data Ends On: {fed_rate.index[-1]}")
+print(f"CPI Data Ends On: {cpi_data.index[-1]}")
+print(f"Unemployment Data Ends On: {unemployment_data.index[-1]}")
+
+# Checking for NaN values in your merged DataFrame
+nan_counts = data.isna().sum()
+print(nan_counts[nan_counts > 0])
+
+import matplotlib.pyplot as plt
+
+# Plot each dataset's availability over time
+plt.figure(figsize=(12, 6))
+plt.plot(stock_data.index, np.ones(len(stock_data)), label='AAPL', marker='o', linestyle='', alpha=0.5)
+plt.plot(vix_data.index, np.ones(len(vix_data)) * 1.1, label='VIX', marker='o', linestyle='', alpha=0.5)
+plt.plot(gdp_data.index, np.ones(len(gdp_data)) * 1.2, label='GDP', marker='o', linestyle='', alpha=0.5)
+plt.plot(fed_rate.index, np.ones(len(fed_rate)) * 1.3, label='Fed Rate', marker='o', linestyle='', alpha=0.5)
+plt.plot(cpi_data.index, np.ones(len(cpi_data)) * 1.4, label='CPI', marker='o', linestyle='', alpha=0.5)
+plt.plot(unemployment_data.index, np.ones(len(unemployment_data)) * 1.5, label='Unemployment', marker='o', linestyle='', alpha=0.5)
+
+plt.yticks([1, 1.1, 1.2, 1.3, 1.4, 1.5], ['AAPL', 'VIX', 'GDP', 'Fed Rate', 'CPI', 'Unemployment'])
+plt.title("Data Availability Over Time")
+plt.xlabel("Date")
+plt.ylabel("Datasets")
+plt.legend()
+plt.show()
